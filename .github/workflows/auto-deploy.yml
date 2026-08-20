@@ -1,0 +1,55 @@
+name: Auto Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A newer push supersedes an in-flight deploy of the same ref.
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          # Vite 7 needs 20.19+/22.12+; 22 also matches what wrangler expects.
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            client/package-lock.json
+
+      # --ignore-scripts skips the root postinstall, which would run a loose
+      # `npm install` in client/ and defeat the point of a locked CI install.
+      - name: Install
+        run: |
+          npm ci --ignore-scripts
+          npm ci --prefix client
+
+      # client/dist is gitignored, so this step is what produces the assets to
+      # ship. Deploying without it uploads zero files and serves a blank page.
+      - name: Build
+        run: npm run build
+
+      # Pull requests stop here: build them, never deploy them. The Worker has a
+      # single production environment, so deploying a PR would take the live site.
+      - name: Deploy
+        if: github.event_name != 'pull_request'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # Plain `deploy`, not `npm run deploy` — the build already ran above
+          # and the npm script would rebuild it a second time.
+          command: deploy

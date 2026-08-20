@@ -68,6 +68,128 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    /* Cork004 from ambientCG, CC0. Tiled at native density rather than stretched
+       with `cover` — the tile is seamless, so repeating keeps the grain sharp at
+       any viewport instead of upscaling it into mush.
+       No `background-attachment: fixed`: iOS Safari does not honour it and jank
+       there matters, since phone-to-laptop is the main use for this. */
+    background-color: #a9762f;
+    background-image: url("/cork.webp");
+    background-size: 512px 512px;
+    background-repeat: repeat;
+  }
+}
+
+@layer components {
+  /* A sheet of paper on the board. Cork is dark enough that a flat white
+     rectangle reads as a hole, so the shadow is doing most of the work.
+     --sx/--sy come from noteStyle() in lib/board.js and encode the single
+     light source; never hardcode a shadow offset here. */
+  .paper {
+    @apply relative border;
+    transform: rotate(var(--rot, 0deg));
+    border-radius: var(--radius, 3px);
+    border-color: rgba(92, 62, 26, 0.13);
+    background-color: var(--paper, #fffdf4);
+    /* Two layers over the tint: paper fibre, then a directional sheen that is
+       brightest at the top-left corner facing the light. */
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23p)' opacity='0.05'/%3E%3C/svg%3E"),
+      linear-gradient(
+        155deg,
+        rgba(255, 255, 255, 0.75) 0%,
+        rgba(255, 255, 255, 0) 38%,
+        rgba(122, 88, 48, 0.07) 100%
+      );
+    background-size:
+      180px 180px,
+      auto;
+    box-shadow:
+      var(--sx, 5px) var(--sy, 8px) 3px -1px rgba(62, 36, 14, 0.3),
+      calc(var(--sx, 5px) * 2.4) calc(var(--sy, 8px) * 2.4) 24px -8px rgba(62, 36, 14, 0.42);
+  }
+
+  /* Lift toward the viewer: the note straightens, rises, and its shadow both
+     grows and softens. A shadow that only moves reads as sliding, not lifting. */
+  .note {
+    transition:
+      transform 180ms ease-out,
+      box-shadow 180ms ease-out;
+  }
+
+  .note:hover {
+    transform: rotate(0deg) translateY(-3px);
+    box-shadow:
+      var(--sx, 5px) var(--sy, 8px) 4px -1px rgba(62, 36, 14, 0.26),
+      calc(var(--sx, 5px) * 3.6) calc(var(--sy, 8px) * 3.6) 38px -10px rgba(62, 36, 14, 0.46);
+  }
+
+  /* The pushpin. Pure CSS, no extra asset. Counter-rotated so its specular
+     highlight keeps pointing at the light however the note is tilted. */
+  .pin::before {
+    content: "";
+    @apply absolute left-1/2 top-0 h-[18px] w-[18px] rounded-full;
+    transform: translate(-50%, -50%) rotate(calc(var(--rot, 0deg) * -1));
+    background: radial-gradient(circle at 34% 28%, #ff9384 0%, #e2483a 42%, #96271c 100%);
+    box-shadow:
+      calc(var(--sx, 5px) * 0.5) calc(var(--sy, 8px) * 0.5) 3px rgba(62, 36, 14, 0.55),
+      inset 0 -1px 2px rgba(0, 0, 0, 0.38);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .note,
+    .note:hover {
+      transition: none;
+      transform: rotate(var(--rot, 0deg));
+    }
+  }
+
+  /* Cards swing down from their top edge — where the pin is — so entering a
+     board reads as the notes dropping onto it. The wrapper owns the flip and
+     the .paper inside keeps its own tilt; putting both transforms on one
+     element would mean the animation clobbers the tilt. */
+  .flip-item {
+    transform-origin: 50% 0;
+    backface-visibility: hidden;
+  }
+
+  .board-enter .flip-item {
+    animation: flip-in 460ms cubic-bezier(0.22, 0.8, 0.3, 1) backwards;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+
+  .board-leave .flip-item {
+    animation: flip-out 260ms cubic-bezier(0.5, 0, 0.75, 0) forwards;
+    animation-delay: calc(var(--i, 0) * 30ms);
+  }
+
+  @keyframes flip-in {
+    from {
+      opacity: 0;
+      transform: perspective(1400px) rotateX(-18deg) translateY(-78px);
+    }
+    to {
+      opacity: 1;
+      transform: perspective(1400px) rotateX(0deg) translateY(0);
+    }
+  }
+
+  @keyframes flip-out {
+    from {
+      opacity: 1;
+      transform: perspective(1400px) rotateY(0deg);
+    }
+    to {
+      opacity: 0;
+      transform: perspective(1400px) rotateY(72deg) translateY(-6px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .board-enter .flip-item,
+    .board-leave .flip-item {
+      animation: none;
+    }
   }
 }

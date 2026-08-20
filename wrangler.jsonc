@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "clipboard",
+  "main": "./worker/index.js",
+  "compatibility_date": "2026-08-10",
+  "assets": {
+    // Built by `npm run build` (client/ is a Vite app). Never deploy without building —
+    // an empty dist uploads 0 files and the Worker serves nothing.
+    "directory": "./client/dist",
+    "binding": "ASSETS",
+    // /c/ABC123 is a client route, not a file: serve index.html instead of 404.
+    "not_found_handling": "single-page-application",
+    // Load-bearing: without this the asset server answers /api/* with the SPA shell
+    // before the Worker script ever runs.
+    "run_worker_first": [
+      "/api/*"
+    ]
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CLIPBOARD",
+        "class_name": "ClipboardDO"
+      }
+    ]
+  },
+  "exports": {
+    // SQLite-backed is required on the Workers free plan.
+    "ClipboardDO": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
+  "observability": {
+    "enabled": true
+  }
+}
