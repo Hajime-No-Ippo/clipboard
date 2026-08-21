@@ -126,9 +126,12 @@
 
   body {
     @apply text-foreground;
-    /* Transparent so the root's cork shows through — a background here would
-       stop at the body box and leave the overscroll area bare. */
-    background: transparent;
+    /* Cork tone, no image. Empirically (three states tested on-device): the
+       native-painted bottom stripe in the standalone app shows body's colour,
+       or WHITE when body is transparent — the html canvas image never reaches
+       it. On the page itself this colour is invisible under the cork layers.
+       Tan is the fallback; the stripe's existence is fought in main.jsx. */
+    background: #ad733f;
   }
 }
 

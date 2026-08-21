@@ -67,7 +67,7 @@ export default function App() {
 
         {/* Footer：永遠穩居最後，不被任何浮動膠囊遮擋 */}
         <footer className="text-center text-xs text-[#f0e2d0]/70 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
-          Cloudflare Workers + Durable Objects · notes expire on their own
+          Cloudflare Workers + Durable Objects · notes expire on their own · b{__BUILD_ID__}
         </footer>
       </div>
     </div>
