@@ -192,4 +192,80 @@
       animation: none;
     }
   }
+
+  /* Marker loop drawn around a button on hover. See GraffitiButton.jsx for why
+     the paths are shaped the way they are. */
+  .graffiti {
+    @apply relative block;
+  }
+
+  .graffiti-ink {
+    @apply pointer-events-none absolute;
+    /* Bleeds outside the button so the ink surrounds it rather than tracing it. */
+    inset: -10px -14px;
+    width: calc(100% + 28px);
+    height: calc(100% + 20px);
+    overflow: visible;
+  }
+
+  .graffiti-stroke,
+  .graffiti-mark {
+    fill: none;
+    stroke: #d64530;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    /* Constant ink weight however far the loop is stretched. */
+    vector-effect: non-scaling-stroke;
+  }
+
+  .graffiti-stroke {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 520ms cubic-bezier(0.22, 0.7, 0.3, 1);
+  }
+
+  /* The second pass lands after the first, like a real double-circle. */
+  .graffiti-stroke--second {
+    stroke-width: 2;
+    opacity: 0.75;
+    transition-delay: 130ms;
+  }
+
+  .graffiti-mark {
+    opacity: 0;
+    transform: scale(0.4);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition:
+      opacity 160ms ease-out,
+      transform 160ms cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
+  .graffiti:hover .graffiti-stroke,
+  .graffiti:focus-within .graffiti-stroke {
+    stroke-dashoffset: 0;
+  }
+
+  .graffiti:hover .graffiti-mark,
+  .graffiti:focus-within .graffiti-mark {
+    opacity: 1;
+    transform: scale(1);
+    /* Ticks go on last, once the loop has closed. */
+    transition-delay: 430ms;
+  }
+
+  /* Nothing to circle on a button that cannot be pressed. */
+  .graffiti:has(button:disabled) .graffiti-stroke,
+  .graffiti:has(button:disabled) .graffiti-mark {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .graffiti-stroke,
+    .graffiti-mark {
+      transition: none;
+    }
+  }
 }

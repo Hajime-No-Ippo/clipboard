@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { GraffitiButton } from "@/components/GraffitiButton";
 import { createClipboard } from "@/lib/api";
 import { noteStyle } from "@/lib/board";
 import { extractCode } from "@/lib/code";
@@ -49,16 +50,15 @@ export default function Home() {
           the same code. No account, no install. Notes come down on their own.
         </p>
         <p className="mt-3 max-w-xl text-sm text-[#8a6a4a]">
-          Anyone who knows the code can read the board — treat it as a shared surface,
-          not a private one.
+          Anyone who knows the code can read the board — treat it as a shared surface.
         </p>
       </section>
 
       <section className="paper space-y-5 p-6 pt-7 sm:p-7" style={noteStyle(1)}>
-        <Button size="lg" className="w-full" onClick={create} disabled={creating}>
+        <GraffitiButton size="lg" className="w-full" onClick={create} disabled={creating}>
           {creating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           New board
-        </Button>
+        </GraffitiButton>
 
         <div className="flex items-center gap-3">
           <span className="h-px flex-1 bg-[#e3d8c4]" />
@@ -75,7 +75,7 @@ export default function Home() {
               id="code"
               value={code}
               onChange={(event) => setCode(event.target.value)}
-              placeholder="ABC123 or paste a link"
+              placeholder="ABC123"
               autoComplete="off"
               spellCheck={false}
               className="font-mono text-lg tracking-[0.3em]"
