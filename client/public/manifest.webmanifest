@@ -1,0 +1,22 @@
+{
+  "name": "Clipboard — paste here, read there",
+  "short_name": "Clipboard",
+  "description": "Pin text to a board and it appears instantly on every device using the same code.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#a9762f",
+  "theme_color": "#a9762f",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

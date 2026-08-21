@@ -95,8 +95,11 @@
      /* Keep Safari's top-bar sampler transparent; the cork image covers the
         visible page pixels. */
      background-color: transparent;
-    background-image: url("/cork.webp");
-    background-size: 512px 512px;
+    background-image: url("/cork-v2.webp");
+    /* 3-tall wrap-offset strip: same 512px display density, triple the
+       vertical repeat period, so the tile pattern stops being noticeable on
+       long boards. */
+    background-size: 512px 1536px;
     background-repeat: repeat;
   }
 
@@ -372,8 +375,8 @@
      is what kept the bars flat #a9762f no matter what the tint caps said.
      Transparent makes it unsampleable; the cork image still paints, and html's
      background-color remains the backstop behind it. */
-  background-image: url("/cork.webp");
-  background-size: 512px 512px;
+  background-image: url("/cork-v2.webp");
+  background-size: 512px 1536px;
   background-repeat: repeat;
 }
 
