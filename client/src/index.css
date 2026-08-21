@@ -97,6 +97,25 @@
     height: 100%;
   }
 
+  /* Browser Safari ONLY (display-mode: browser cannot match the installed
+     app, so the PWA — now correct — is untouchable by this block). Dark chrome
+     makes Safari 26 drop the milky light-glass veil on its bars; with the
+     sampled tint already cork-toned, what remains over the bars is mild frost
+     over real cork pixels — the 06:31 rendering, the best browser state seen
+     on-device. Form controls opt back to light for the cream paper. */
+  @media (display-mode: browser) {
+    :root {
+      color-scheme: dark;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+      color-scheme: light;
+    }
+  }
+
   /* NO overflow:hidden on html or body: the root clips FIXED descendants to
      the viewport, which amputates .board-bg's ±60vh cork extensions — the very
      pixels that cover keyboard pans and viewport shortfalls with real texture.
