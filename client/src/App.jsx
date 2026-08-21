@@ -15,7 +15,7 @@ function BareCode() {
 
 export default function App() {
   return (
-    <div className="min-h-screen">
+    <div className="app-shell-outer">
       {/* The board's own lighting, and it must agree with the notes': a warm
           highlight where the light is (top-left) and the fall-off opposite it.
           A centred vignette would contradict every shadow on the page. */}
@@ -28,17 +28,7 @@ export default function App() {
         }}
       />
 
-      {/* max(): the 2rem is the design padding, the inset only wins where Safari
-          actually reserves space for a toolbar or a notch. */}
-      <div
-        className="relative mx-auto flex min-h-screen max-w-3xl flex-col gap-6"
-        style={{
-          paddingTop: "max(2rem, env(safe-area-inset-top))",
-          paddingBottom: "max(2rem, env(safe-area-inset-bottom))",
-          paddingLeft: "max(1rem, env(safe-area-inset-left))",
-          paddingRight: "max(1rem, env(safe-area-inset-right))",
-        }}
-      >
+      <div className="app-shell relative mx-auto flex max-w-3xl flex-col gap-6">
         <header className="text-center">
           <Link
             to="/"

@@ -92,6 +92,30 @@
 }
 
 @layer components {
+  /* The page shell.
+     `100dvh` is the fix for Safari's toolbars: `100vh` resolves to the *largest*
+     viewport — the one with the URL bar hidden — so a 100vh page is taller than
+     what is actually on screen and its footer necessarily sits under the chrome.
+     `dvh` tracks the viewport as currently displayed. The `100vh` line above it
+     is the fallback for browsers that do not know `dvh`, and must come first. */
+  .app-shell-outer {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  .app-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    /* max(), not a bare env() fallback: the fallback in `env(x, 20px)` applies
+       only where env() is *unsupported*. Desktop browsers support it and report
+       0, so a bare env() would strip the design padding everywhere but iOS. */
+    padding-top: max(2rem, env(safe-area-inset-top));
+    padding-bottom: max(2rem, env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
   /* A sheet of paper on the board. Cork is dark enough that a flat white
      rectangle reads as a hole, so the shadow is doing most of the work.
      --sx/--sy come from noteStyle() in lib/board.js and encode the single

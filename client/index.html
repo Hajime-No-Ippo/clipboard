@@ -7,11 +7,15 @@
     <!-- viewport-fit=cover opts into the full screen so the safe-area insets
          below report real values; without it they are all 0. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <!-- Safari 26 runs the page under translucent toolbars and, with no
-         theme-color, samples the page to tint them. Sampling a tiled cork
-         texture produces a smeared blur band at the top and bottom; naming the
-         colour outright stops it guessing. -->
-    <meta name="theme-color" content="#a9762f" />
+    <!-- Safari 26 runs the page under translucent toolbars and paints them a
+         solid colour from theme-color (with none set it samples and blurs the
+         page instead, which smears the cork texture). Page content cannot render
+         there, so the aim is a band that reads as a continuation of the board.
+
+         Not the raw cork: the vignette overlay in App.jsx lightens the page, so
+         the edge the eye compares against is cork blended with that highlight.
+         Matching raw cork gives a band visibly darker than the board. -->
+    <meta name="theme-color" content="#b8834f" />
     <title>Clipboard — paste here, read there</title>
   </head>
   <body>
