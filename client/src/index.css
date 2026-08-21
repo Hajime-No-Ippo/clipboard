@@ -193,18 +193,21 @@
     }
   }
 
-  /* Marker loop drawn around a button on hover. See GraffitiButton.jsx for why
-     the paths are shaped the way they are. */
-  .graffiti {
-    @apply relative block;
+  /* Marker loop drawn around a button's label on hover. See GraffitiButton.jsx
+     for why the paths and the scaling are the way they are. */
+  .graffiti-target {
+    @apply relative inline-flex items-center justify-center;
   }
 
+  /* Sized to the label, not the button: a loop stretched across a full-width
+     button is a rounded rectangle, which reads as a border rather than ink.
+     Scaled uniformly (default preserveAspectRatio) so the dash maths stays
+     dependable — see the component. */
   .graffiti-ink {
-    @apply pointer-events-none absolute;
-    /* Bleeds outside the button so the ink surrounds it rather than tracing it. */
-    inset: -10px -14px;
-    width: calc(100% + 28px);
-    height: calc(100% + 20px);
+    @apply pointer-events-none absolute left-1/2 top-1/2;
+    width: calc(100% + 42px);
+    height: calc(100% + 30px);
+    transform: translate(-50%, -50%);
     overflow: visible;
   }
 
@@ -212,23 +215,26 @@
   .graffiti-mark {
     fill: none;
     stroke: #d64530;
-    stroke-width: 2.5;
+    stroke-width: 4;
     stroke-linecap: round;
     stroke-linejoin: round;
-    /* Constant ink weight however far the loop is stretched. */
-    vector-effect: non-scaling-stroke;
   }
 
   .graffiti-stroke {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    transition: stroke-dashoffset 520ms cubic-bezier(0.22, 0.7, 0.3, 1);
+    /* Belt and braces: the dash alone should hide it, but an explicit opacity
+       guarantees no ink is visible before hover regardless of how a browser
+       resolves dash lengths under the viewBox transform. */
+    opacity: 0;
+    transition:
+      stroke-dashoffset 520ms cubic-bezier(0.22, 0.7, 0.3, 1),
+      opacity 90ms linear;
   }
 
   /* The second pass lands after the first, like a real double-circle. */
   .graffiti-stroke--second {
-    stroke-width: 2;
-    opacity: 0.75;
+    stroke-width: 3;
     transition-delay: 130ms;
   }
 
@@ -242,13 +248,19 @@
       transform 160ms cubic-bezier(0.2, 1.4, 0.4, 1);
   }
 
-  .graffiti:hover .graffiti-stroke,
-  .graffiti:focus-within .graffiti-stroke {
+  .graffiti-host:hover .graffiti-stroke,
+  .graffiti-host:focus-visible .graffiti-stroke {
     stroke-dashoffset: 0;
+    opacity: 1;
   }
 
-  .graffiti:hover .graffiti-mark,
-  .graffiti:focus-within .graffiti-mark {
+  .graffiti-host:hover .graffiti-stroke--second,
+  .graffiti-host:focus-visible .graffiti-stroke--second {
+    opacity: 0.75;
+  }
+
+  .graffiti-host:hover .graffiti-mark,
+  .graffiti-host:focus-visible .graffiti-mark {
     opacity: 1;
     transform: scale(1);
     /* Ticks go on last, once the loop has closed. */
@@ -256,8 +268,8 @@
   }
 
   /* Nothing to circle on a button that cannot be pressed. */
-  .graffiti:has(button:disabled) .graffiti-stroke,
-  .graffiti:has(button:disabled) .graffiti-mark {
+  .graffiti-host:disabled .graffiti-stroke,
+  .graffiti-host:disabled .graffiti-mark {
     stroke-dashoffset: 1;
     opacity: 0;
   }
