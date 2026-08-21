@@ -28,7 +28,17 @@ export default function App() {
         }}
       />
 
-      <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col gap-6 px-4 py-8">
+      {/* max(): the 2rem is the design padding, the inset only wins where Safari
+          actually reserves space for a toolbar or a notch. */}
+      <div
+        className="relative mx-auto flex min-h-screen max-w-3xl flex-col gap-6"
+        style={{
+          paddingTop: "max(2rem, env(safe-area-inset-top))",
+          paddingBottom: "max(2rem, env(safe-area-inset-bottom))",
+          paddingLeft: "max(1rem, env(safe-area-inset-left))",
+          paddingRight: "max(1rem, env(safe-area-inset-right))",
+        }}
+      >
         <header className="text-center">
           <Link
             to="/"

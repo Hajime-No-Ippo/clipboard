@@ -4,7 +4,14 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
     <link rel="apple-touch-icon" href="/icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- viewport-fit=cover opts into the full screen so the safe-area insets
+         below report real values; without it they are all 0. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Safari 26 runs the page under translucent toolbars and, with no
+         theme-color, samples the page to tint them. Sampling a tiled cork
+         texture produces a smeared blur band at the top and bottom; naming the
+         colour outright stops it guessing. -->
+    <meta name="theme-color" content="#a9762f" />
     <title>Clipboard — paste here, read there</title>
   </head>
   <body>

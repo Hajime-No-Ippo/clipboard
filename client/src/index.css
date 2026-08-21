@@ -67,8 +67,11 @@
     @apply border-border;
   }
 
-  body {
-    @apply text-foreground;
+  /* The cork lives on the root element, not on body. A background on <html>
+     paints the whole canvas — including the rubber-band area Safari exposes past
+     the top and bottom of the document — whereas body's only propagates when the
+     root has none, and stops at the body box during overscroll. */
+  html {
     /* Cork004 from ambientCG, CC0. Tiled at native density rather than stretched
        with `cover` — the tile is seamless, so repeating keeps the grain sharp at
        any viewport instead of upscaling it into mush.
@@ -78,6 +81,13 @@
     background-image: url("/cork.webp");
     background-size: 512px 512px;
     background-repeat: repeat;
+  }
+
+  body {
+    @apply text-foreground;
+    /* Transparent so the root's cork shows through — a background here would
+       stop at the body box and leave the overscroll area bare. */
+    background: transparent;
   }
 }
 
