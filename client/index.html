@@ -13,15 +13,15 @@
          what it samples is pure cork: the board continues under the chrome,
          lightly frosted. Sampling only looked bad before the padding existed,
          when footer text sat in the sampled region. -->
-    <!-- Keep Safari's native status and toolbar surfaces dark instead of white.
-         The app's paper cards use explicit colors and are unaffected. -->
-    <meta name="color-scheme" content="dark" />
+    <!-- No color-scheme meta: "dark" made iOS paint the keyboard-gap canvas
+         black (beating the cork background-color) and styled form controls
+         dark on a light page. Default light matches the board. -->
 
     <!-- PWA. Installed to the home screen the app runs standalone: no Safari
          toolbar, no pill, no bar tinting — the whole saga above simply does not
          apply. black-translucent lets the page render its real pixels under the
          status bar, so the cork runs edge to edge, unfrosted. -->
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="manifest" href="/manifest.json" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />

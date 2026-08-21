@@ -78,6 +78,16 @@
        flat band however the page is painted. Disabling overscroll removes the
        reveal (and with it pull-to-refresh, which is an acceptable trade here). */
     overscroll-behavior-y: none;
+  }
+
+  /* Standalone (installed PWA): restore normal scrolling. There are no browser
+     bars whose overhang needs hiding, and iOS home-screen web apps have a
+     WebKit defect where overscroll-behavior: none on the root disables root
+     scrolling entirely — the "PWA cannot scroll" bug. */
+  @media (display-mode: standalone) {
+    html {
+      overscroll-behavior-y: auto;
+    }
     /* Cork004 from ambientCG, CC0. Tiled at native density rather than stretched
        with `cover` — the tile is seamless, so repeating keeps the grain sharp at
        any viewport instead of upscaling it into mush.
