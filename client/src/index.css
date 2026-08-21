@@ -167,7 +167,7 @@
   @keyframes flip-in {
     from {
       opacity: 0;
-      transform: perspective(1400px) rotateX(-18deg) translateY(-78px);
+      transform: perspective(1400px) rotateX(-18deg) translateY(-98px);
     }
     to {
       opacity: 1;
@@ -182,7 +182,7 @@
     }
     to {
       opacity: 0;
-      transform: perspective(1400px) rotateY(72deg) translateY(-6px);
+      transform: perspective(1400px) rotateY(92deg) translateY(-6px);
     }
   }
 
@@ -193,91 +193,44 @@
     }
   }
 
-  /* Marker loop drawn around a button's label on hover. See GraffitiButton.jsx
-     for why the paths and the scaling are the way they are. */
+  /* Hand-drawn circle round a button's label. See lib/tag.js for the geometry
+     and GraffitiButton.jsx for why the SVG is measured rather than scaled. */
   .graffiti-target {
     @apply relative inline-flex items-center justify-center;
   }
 
-  /* Sized to the label, not the button: a loop stretched across a full-width
-     button is a rounded rectangle, which reads as a border rather than ink.
-     Scaled uniformly (default preserveAspectRatio) so the dash maths stays
-     dependable — see the component. */
-  .graffiti-ink {
-    @apply pointer-events-none absolute left-1/2 top-1/2;
-    width: calc(100% + 42px);
-    height: calc(100% + 30px);
-    transform: translate(-50%, -50%);
+  /* Size and offset are set inline from the generated bleed — the viewBox has to
+     agree with them, and split across two files they drift.
+     `.graffiti-host svg.graffiti-ink` out-specifies Button's `[&_svg]:size-4`,
+     which otherwise renders this as a 16px square. */
+  .graffiti-host svg.graffiti-ink {
+    @apply pointer-events-none absolute;
     overflow: visible;
+    z-index: 0;
+    /* Contains the blending. Without isolation the multiply would composite
+       against the near-black button face and the ink over it would go black;
+       isolated, the laps multiply with each other and nothing else. */
+    isolation: isolate;
   }
 
-  .graffiti-stroke,
-  .graffiti-mark {
+  /* Real ink. `opacity` alone cannot darken past the stroke colour however many
+     laps overlap — source-over converges on it. Multiply lets each lap take the
+     backdrop down further, which is what makes the crossings read as heavier
+     than the single runs. */
+  .jx-lap {
+    mix-blend-mode: multiply;
+  }
+
+  /* GSAP owns the motion. Do not add transitions here — they fight the timeline.
+     This is only the resting state and the pen's physical properties. */
+  .jx-lap path {
     fill: none;
-    stroke: #d64530;
-    stroke-width: 4;
+    /* Round, matching the reference: a brush turns corners rather than mitring
+       them, and the overshoot tail ends in a round cap. */
     stroke-linecap: round;
     stroke-linejoin: round;
-  }
-
-  .graffiti-stroke {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
-    /* Belt and braces: the dash alone should hide it, but an explicit opacity
-       guarantees no ink is visible before hover regardless of how a browser
-       resolves dash lengths under the viewBox transform. */
     opacity: 0;
-    transition:
-      stroke-dashoffset 520ms cubic-bezier(0.22, 0.7, 0.3, 1),
-      opacity 90ms linear;
-  }
-
-  /* The second pass lands after the first, like a real double-circle. */
-  .graffiti-stroke--second {
-    stroke-width: 3;
-    transition-delay: 130ms;
-  }
-
-  .graffiti-mark {
-    opacity: 0;
-    transform: scale(0.4);
-    transform-box: fill-box;
-    transform-origin: center;
-    transition:
-      opacity 160ms ease-out,
-      transform 160ms cubic-bezier(0.2, 1.4, 0.4, 1);
-  }
-
-  .graffiti-host:hover .graffiti-stroke,
-  .graffiti-host:focus-visible .graffiti-stroke {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-
-  .graffiti-host:hover .graffiti-stroke--second,
-  .graffiti-host:focus-visible .graffiti-stroke--second {
-    opacity: 0.75;
-  }
-
-  .graffiti-host:hover .graffiti-mark,
-  .graffiti-host:focus-visible .graffiti-mark {
-    opacity: 1;
-    transform: scale(1);
-    /* Ticks go on last, once the loop has closed. */
-    transition-delay: 430ms;
-  }
-
-  /* Nothing to circle on a button that cannot be pressed. */
-  .graffiti-host:disabled .graffiti-stroke,
-  .graffiti-host:disabled .graffiti-mark {
-    stroke-dashoffset: 1;
-    opacity: 0;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .graffiti-stroke,
-    .graffiti-mark {
-      transition: none;
-    }
   }
 }

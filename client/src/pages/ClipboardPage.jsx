@@ -10,7 +10,7 @@ import { DEFAULT_TTL, TTL_OPTIONS } from "@/lib/format";
 import { noteStyle } from "@/lib/board";
 import { ACCEPTED_CODE } from "@/lib/code";
 import { cn } from "@/lib/utils";
-
+import { GraffitiButton } from "@/components/GraffitiButton";
 const STATUS = {
   live: { label: "Live", dot: "bg-emerald-400" },
   connecting: { label: "Connecting…", dot: "bg-slate-300" },
@@ -133,10 +133,10 @@ function Board({ slug }) {
               <span className={cn("text-xs text-[#8a6a4a]", tooBig && "text-red-700")}>
                 {(bytes / 1024).toFixed(1)} / {Math.round(maxBytes / 1024)} KB
               </span>
-              <Button type="submit" disabled={!draft.trim() || tooBig || sending}>
+              <GraffitiButton type="submit" disabled={!draft.trim() || tooBig || sending}>
                 {sending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Pin it
-              </Button>
+              </GraffitiButton>
             </div>
           </div>
           {error && <p className="text-sm text-red-700">{error}</p>}
