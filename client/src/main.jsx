@@ -21,20 +21,33 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
   });
 }
 
-// iPadOS/iOS standalone: the keyboard shifts the visual viewport and often
-// fails to restore it, leaving the layout stuck high with a native-painted
-// stripe exposed at the bottom. Restore whenever the situation can have
-// changed: keyboard close (viewport resize), focus leaving a field, the app
-// returning to foreground. The scrollBy pair forces WebKit to recompute the
-// visual-viewport offset; scrollTo alone is treated as a no-op.
+// iOS standalone keyboard handling for the fixed app shell.
+//
+// The root cannot scroll (overflow: hidden), but iOS's keyboard manager PANS
+// the whole window anyway when a focused input would be covered — and a panned
+// window exposes the native-painted region beyond the document: the stripe.
+// Two countermeasures:
+//   1. On focus, centre the input inside the INNER scroller before iOS decides
+//      it needs to pan the window at all.
+//   2. Any nonzero window.scrollY on this page IS the keyboard pan (the root
+//      has no legal scroll position but 0) — snap it back once focus leaves.
 function restoreViewport() {
   const el = document.activeElement;
   if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return;
+  if (window.scrollY !== 0) window.scrollTo(0, 0);
   window.scrollBy(0, 1);
   window.scrollBy(0, -1);
-  const vv = window.visualViewport;
-  if (vv && vv.offsetTop > 0) window.scrollTo(0, Math.max(0, window.scrollY - vv.offsetTop));
 }
+
+document.addEventListener("focusin", (event) => {
+  const el = event.target;
+  if (el.tagName !== "INPUT" && el.tagName !== "TEXTAREA") return;
+  setTimeout(() => {
+    if (document.activeElement === el) {
+      el.scrollIntoView({ block: "center", behavior: "instant" });
+    }
+  }, 60);
+});
 
 if ("visualViewport" in window) {
   let keyboardWasOpen = false;
