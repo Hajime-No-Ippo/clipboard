@@ -83,7 +83,6 @@
   }
 
   html {
-    overflow: hidden;
     /* No rubber-band. During the bounce Safari clips web content to the
        viewport and natively paints the revealed overhang with background-color
        alone — no image, no fixed layer can reach it, so it always shows as a
@@ -98,10 +97,11 @@
     height: 100%;
   }
 
-  html,
-  body {
-    overflow: hidden;
-  }
+  /* NO overflow:hidden on html or body: the root clips FIXED descendants to
+     the viewport, which amputates .board-bg's ±60vh cork extensions — the very
+     pixels that cover keyboard pans and viewport shortfalls with real texture.
+     Nothing overflows the 100%-height shell, so the root has nothing to scroll
+     anyway. */
 
   /* Standalone (installed PWA): restore normal scrolling. There are no browser
      bars whose overhang needs hiding, and iOS home-screen web apps have a
@@ -155,6 +155,16 @@
     height: 100vh;
     height: 100dvh;
     overflow: hidden;
+  }
+
+  /* Standalone: dvh can resolve short of the physical bottom, leaving a
+     below-shell strip. There is no dynamic chrome in an installed app, so the
+     largest viewport is simply the screen. */
+  @media (display-mode: standalone) {
+    .app-viewport {
+      height: 100vh;
+      height: 100lvh;
+    }
   }
 
   .content-scroll {
