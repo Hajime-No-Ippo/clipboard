@@ -12,7 +12,7 @@ function BareCode() {
 
 export default function App() {
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="app-viewport">
       {/* First in the DOM on purpose: Safari 26 tints its bars from a sampled
           fixed element near the viewport edge, and which candidate wins is
           undocumented — being first, nearest the edge, and highest in z covers
@@ -32,12 +32,12 @@ export default function App() {
 
 
 
-      {/* 2. 內容主要容器：自然滾動，頂底給足 Safe Area */}
+      {/* 2. 內容主要容器：獨立滾動，讓固定軟木背景始終填滿 viewport */}
       {/* Bottom clearance: env(safe-area-inset-bottom) is only the home
           indicator (~34px); Safari's floating pill (~54px) sits above it and no
           env() reports it. Without the +4.5rem the footer lands inside the pill
           and its text gets blurred — the original complaint. */}
-      <div className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4
+      <div className="content-scroll relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4
                       pt-[max(1.5rem,env(safe-area-inset-top))]
                       pb-[max(3rem,calc(env(safe-area-inset-bottom)+4.5rem))] gap-8">
 

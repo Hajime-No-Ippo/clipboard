@@ -80,6 +80,17 @@
     overscroll-behavior-y: none;
   }
 
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  html,
+  body {
+    overflow: hidden;
+  }
+
   /* Standalone (installed PWA): restore normal scrolling. There are no browser
      bars whose overhang needs hiding, and iOS home-screen web apps have a
      WebKit defect where overscroll-behavior: none on the root disables root
@@ -122,6 +133,22 @@
 }
 
 @layer components {
+  .app-viewport {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .content-scroll {
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
   /* The page shell.
      `100dvh` is the fix for Safari's toolbars: `100vh` resolves to the *largest*
      viewport — the one with the URL bar hidden — so a 100vh page is taller than
