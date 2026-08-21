@@ -72,12 +72,29 @@
      the top and bottom of the document — whereas body's only propagates when the
      root has none, and stops at the body box during overscroll. */
   html {
+    /* No rubber-band. During the bounce Safari clips web content to the
+       viewport and natively paints the revealed overhang with background-color
+       alone — no image, no fixed layer can reach it, so it always shows as a
+       flat band however the page is painted. Disabling overscroll removes the
+       reveal (and with it pull-to-refresh, which is an acceptable trade here). */
+    overscroll-behavior-y: none;
     /* Cork004 from ambientCG, CC0. Tiled at native density rather than stretched
        with `cover` — the tile is seamless, so repeating keeps the grain sharp at
        any viewport instead of upscaling it into mush.
        No `background-attachment: fixed`: iOS Safari does not honour it and jank
        there matters, since phone-to-laptop is the main use for this. */
-    background-color: #a9762f;
+    /* Also what Safari 26 samples for its TOP bar (empirically mapped over
+       several rounds): the bar renders as frost(page pixels) + a strong tint of
+       THIS colour, and the clock flips white when it is dark. Tested dark
+       (#2b1a0d): black band against the mid-brown board — worse. The floor for
+       a textured page is a smooth cork-tone strip, because the frost destroys
+       grain regardless of tint; sites that look like raw pixels under the bars
+       (flat dark pages) are just feeding the frost content it cannot damage.
+       So: the perceived cork body tone, making the strip a continuation of the
+       board. Only the sampler sees this; the cork image covers every pixel. */
+     /* Keep Safari's top-bar sampler transparent; the cork image covers the
+        visible page pixels. */
+     background-color: transparent;
     background-image: url("/cork.webp");
     background-size: 512px 512px;
     background-repeat: repeat;
@@ -115,6 +132,44 @@
     padding-left: max(1rem, env(safe-area-inset-left));
     padding-right: max(1rem, env(safe-area-inset-right));
   }
+
+  /* iOS Safari only. `dvh` sizes the shell to the visible viewport, but the page
+     scrolls — and at the bottom of the scroll the footer lands at the document
+     end, which with viewport-fit=cover extends *under* the floating toolbar.
+     safe-area-inset-bottom does not help: it reports the home indicator (~34px)
+     and knows nothing about the toolbar (~54px) sitting above it.
+     The toolbar's blur is chrome material and cannot be turned off; the only fix
+     is to keep content from sitting behind it.
+     -webkit-touch-callout is the discriminator — it exists on iOS WebKit and not
+     on macOS Safari or any desktop browser, so desktop keeps its 2rem. */
+/* 修改前：硬頂了 4.5rem 把頂部卡片擠出螢幕 */
+/* 
+@supports (-webkit-touch-callout: none) {
+  .app-shell {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 4.5rem);
+  }
+} 
+*/
+
+/* ✅ 修改後：乾淨俐落的響應式 Safe Area 打法 */
+.app-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  box-sizing: border-box;
+
+  /* 頂部和左右用標準 Safe Area，防止撞到動態島 */
+  padding-top: max(1.5rem, env(safe-area-inset-top));
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
+  
+  /* 底部給予適度的彈性空間，留出 Safari 控制列的緩衝區 */
+  padding-bottom: max(3.5rem, calc(env(safe-area-inset-bottom) + 2rem));
+
+  /* 關鍵：強制用 Flex 垂直軸向分散，讓 Header, Content, Footer 自然排開 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
   /* A sheet of paper on the board. Cork is dark enough that a flat white
      rectangle reads as a hole, so the shadow is doing most of the work.
@@ -241,19 +296,15 @@
     @apply pointer-events-none absolute;
     overflow: visible;
     z-index: 0;
-    /* Contains the blending. Without isolation the multiply would composite
-       against the near-black button face and the ink over it would go black;
-       isolated, the laps multiply with each other and nothing else. */
-    isolation: isolate;
   }
 
-  /* Real ink. `opacity` alone cannot darken past the stroke colour however many
-     laps overlap — source-over converges on it. Multiply lets each lap take the
-     backdrop down further, which is what makes the crossings read as heavier
-     than the single runs. */
-  .jx-lap {
-    mix-blend-mode: multiply;
-  }
+  /* NO mix-blend-mode here, on purpose. The ink used isolation+multiply so laps
+     darkened where they cross; in Safari that combination breaks — the blend
+     escapes its isolation, red multiplies against the near-black button face
+     (invisible), and the broken compositing also drops the button's own
+     background, rendering it white. Verified fine in Chrome, broken in Safari.
+     Per-lap alpha stacking still builds density at crossings; it merely cannot
+     exceed the ink colour, which is an acceptable trade for rendering at all. */
 
   /* GSAP owns the motion. Do not add transitions here — they fight the timeline.
      This is only the resting state and the pen's physical properties. */
@@ -267,4 +318,72 @@
     stroke-dashoffset: 1;
     opacity: 0;
   }
+/* Safari 26 ignores theme-color. Instead it tints its top ("forehead") and
+   bottom ("chin") areas from the sampled background-color of the body — or of
+   any fixed element within ~4px of the top / ~3px of the bottom edge that is
+   at least 80% wide and 3px tall. Our .board-bg is exactly such an element,
+   which is why the bars kept coming out flat #a9762f whatever else we did.
+   These two strips exist solely to be the thing Safari samples: they sit almost
+   entirely off-screen, carry the colour each bar should be (cork body tone,
+   lightened top / darkened bottom to match the vignette), and outrank .board-bg
+   by being nearer the edge and higher in z. iOS-gated; nothing else sees them.
+   Ref: benfrain.com and jahir.dev reverse-engineering of the sampling rules. */
+.tint-cap {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  z-index: 2147483647;
+  pointer-events: none;
+  display: none;
+}
+/* Diagnostic result (teal/magenta test, 2026-08-21): the BOTTOM bar sampled
+   its cap — magenta chin, mechanism confirmed. The TOP bar ignored its cap and
+   kept sampling html's background-color, while the top cap leaked a visible
+   sliver below the status bar. Hence: bottom cap only, real tone; the forehead
+   is tuned via html's background-color instead, which is what it samples. */
+.tint-cap--bottom {
+  bottom: -8px;
+  opacity: 0;
+}
+@supports (-webkit-touch-callout: none) {
+  .tint-cap {
+    display: block;
+  }
+}
+
+/* The corkboard itself, oversized. iOS paints the region past the document's
+   end (rubber-band bounce, keyboard viewport shifts) with the root's
+   background-color ONLY — it never tiles the background-image there, which is
+   why raw #a9762f showed as a flat band when scrolling past the bottom. This
+   layer extends the tile 60vh beyond each end of the viewport, so however far
+   the bounce or keyboard drags the layout viewport, cork is always behind it.
+   The html background stays as the backstop of last resort. */
+.board-bg {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: -60vh;
+  bottom: -60vh;
+  z-index: -1;
+  pointer-events: none;
+  /* NO background-color, deliberately: this element qualifies for Safari 26's
+     bar-colour sampling (fixed, edge-touching, full-width), and a colour here
+     is what kept the bars flat #a9762f no matter what the tint caps said.
+     Transparent makes it unsampleable; the cork image still paints, and html's
+     background-color remains the backstop behind it. */
+  background-image: url("/cork.webp");
+  background-size: 512px 512px;
+  background-repeat: repeat;
+}
+
+
+
+/* 專門給 Footer 用的樣式 */
+.board-footer {
+  margin-top: auto; /* 自動貼底 */
+  padding-bottom: env(safe-area-inset-bottom);
+  /* 確保文字不會貼死在底部網址列下方 */
+  margin-bottom: 1rem; 
+}
 }

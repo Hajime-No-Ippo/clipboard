@@ -3,19 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
-    <!-- viewport-fit=cover opts into the full screen so the safe-area insets
-         below report real values; without it they are all 0. -->
+    <link rel="apple-touch-icon" href="/icons/icon-180.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <!-- Safari 26 runs the page under translucent toolbars and paints them a
-         solid colour from theme-color (with none set it samples and blurs the
-         page instead, which smears the cork texture). Page content cannot render
-         there, so the aim is a band that reads as a continuation of the board.
+    
+    <!-- Deliberately NO theme-color. With one set, Safari 26 paints the top and
+         bottom bar areas as solid opaque slabs of that colour — the big flat
+         squares sitting on the corkboard. Without it, Safari samples the page,
+         and since the safe-area padding keeps all content clear of the bars,
+         what it samples is pure cork: the board continues under the chrome,
+         lightly frosted. Sampling only looked bad before the padding existed,
+         when footer text sat in the sampled region. -->
+    <!-- Keep Safari's native status and toolbar surfaces dark instead of white.
+         The app's paper cards use explicit colors and are unaffected. -->
+    <meta name="color-scheme" content="dark" />
 
-         Not the raw cork: the vignette overlay in App.jsx lightens the page, so
-         the edge the eye compares against is cork blended with that highlight.
-         Matching raw cork gives a band visibly darker than the board. -->
-    <meta name="theme-color" content="#b8834f" />
+    <!-- PWA. Installed to the home screen the app runs standalone: no Safari
+         toolbar, no pill, no bar tinting — the whole saga above simply does not
+         apply. black-translucent lets the page render its real pixels under the
+         status bar, so the cork runs edge to edge, unfrosted. -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Clipboard" />
     <title>Clipboard — paste here, read there</title>
   </head>
   <body>
