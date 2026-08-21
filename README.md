@@ -110,5 +110,8 @@ surface, not a private one.
 | `DELETE` | `/api/c/:slug/:id` | — | `{ removed }` |
 | `WS` | `/api/c/:slug/ws` | — | pushes `entry` / `removed` / `expired` |
 
-Codes are validated against `^[A-Z0-9]{4,24}$` **before** the Durable Object binding is
-touched, so a malformed path can never allocate an object.
+### Support me if you like this idea !
+
+<a href='https://ko-fi.com/D1D31LU7EI' target='_blank'>
+  <img height='36' style='border:0px;height:36px;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' />
+</a>
