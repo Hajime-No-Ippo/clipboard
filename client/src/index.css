@@ -71,7 +71,19 @@
      paints the whole canvas — including the rubber-band area Safari exposes past
      the top and bottom of the document — whereas body's only propagates when the
      root has none, and stops at the body box during overscroll. */
+  /* App shell: the ROOT never scrolls — content scrolls in an inner container
+     (see App.jsx). A scrollable root is what makes iOS expose the native-
+     painted bottom stripe in standalone; the 06:44 build had full cork to
+     every edge precisely because its root could not scroll (as a bug — it
+     could not scroll at all). The inner scroller keeps both. */
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
   html {
+    overflow: hidden;
     /* No rubber-band. During the bounce Safari clips web content to the
        viewport and natively paints the revealed overhang with background-color
        alone — no image, no fixed layer can reach it, so it always shows as a

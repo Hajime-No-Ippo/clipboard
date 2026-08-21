@@ -30,17 +30,16 @@ export default function App() {
         }}
       />
 
-
-
       {/* 2. 內容主要容器：獨立滾動，讓固定軟木背景始終填滿 viewport */}
       {/* Bottom clearance: env(safe-area-inset-bottom) is only the home
           indicator (~34px); Safari's floating pill (~54px) sits above it and no
           env() reports it. Without the +4.5rem the footer lands inside the pill
           and its text gets blurred — the original complaint. */}
-      <div className="content-scroll relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4
+      <div
+        className="content-scroll relative z-10 mx-auto flex max-w-3xl flex-col items-center px-4
                       pt-[max(1.5rem,env(safe-area-inset-top))]
-                      pb-[max(3rem,calc(env(safe-area-inset-bottom)+4.5rem))] gap-8">
-
+                      pb-[max(3rem,calc(env(safe-area-inset-bottom)+4.5rem))] gap-8"
+      >
         {/* Header：去掉 sticky，讓它作為紙板自然排在最頂端 */}
         <header className="text-center">
           <Link
@@ -48,7 +47,9 @@ export default function App() {
             className="paper note pin inline-block px-8 py-4"
             style={noteStyle(2)}
           >
-            <span className="font-serif text-2xl text-[#3b2a18]">Clipboard</span>
+            <span className="font-serif text-2xl text-[#3b2a18]">
+              Clipboard
+            </span>
             <span className="mt-0.5 block text-xs uppercase tracking-[0.25em] text-[#8a6a4a]">
               One board, every device
             </span>
@@ -67,7 +68,8 @@ export default function App() {
 
         {/* Footer：永遠穩居最後，不被任何浮動膠囊遮擋 */}
         <footer className="text-center text-xs text-[#f0e2d0]/70 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)]">
-          Cloudflare Workers + Durable Objects · notes expire on their own · b{__BUILD_ID__}
+          Cloudflare Workers + Durable Objects · notes expire on their own · b
+          {__BUILD_ID__}
         </footer>
       </div>
     </div>
