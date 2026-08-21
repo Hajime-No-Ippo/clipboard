@@ -72,13 +72,6 @@
      the top and bottom of the document — whereas body's only propagates when the
      root has none, and stops at the body box during overscroll. */
   html {
-    /* Dark colour-scheme in the BROWSER: Safari 26's chrome appearance follows
-       the page's scheme, and light mode renders the bars as white glass over
-       the cork (the "why white" band). Dark keeps them dark glass. Scoped, not
-       the meta: standalone reverts to light below (dark made iOS paint the
-       keyboard-gap canvas black), and form controls opt back into light so
-       they render for the cream paper they sit on. */
-    color-scheme: dark;
     /* No rubber-band. During the bounce Safari clips web content to the
        viewport and natively paints the revealed overhang with background-color
        alone — no image, no fixed layer can reach it, so it always shows as a
@@ -98,13 +91,6 @@
     overflow: hidden;
   }
 
-  input,
-  textarea,
-  select,
-  button {
-    color-scheme: light;
-  }
-
   /* Standalone (installed PWA): restore normal scrolling. There are no browser
      bars whose overhang needs hiding, and iOS home-screen web apps have a
      WebKit defect where overscroll-behavior: none on the root disables root
@@ -112,9 +98,6 @@
   @media (display-mode: standalone) {
     html {
       overscroll-behavior-y: auto;
-      /* Light canvas: no browser chrome exists here, and dark made iOS paint
-         the keyboard gap black instead of the cork background-color. */
-      color-scheme: light;
     }
     /* Cork004 from ambientCG, CC0. Tiled at native density rather than stretched
        with `cover` — the tile is seamless, so repeating keeps the grain sharp at
