@@ -126,9 +126,12 @@
 
   body {
     @apply text-foreground;
-    /* Transparent so the root's cork shows through — a background here would
-       stop at the body box and leave the overscroll area bare. */
-    background: transparent;
+    /* Solid cork TONE, no image: invisible in practice (the cork image layers
+       paint over it), but iOS's native painter reads it for the regions it
+       fills itself — the standalone home-indicator strip rendered white while
+       body was transparent. The canvas/overscroll backstop still comes from
+       html, which keeps its own background. */
+    background: #ad733f;
   }
 }
 
