@@ -12,6 +12,11 @@ import App from './App.jsx'
 // the bars into the board.
 if (window.navigator.standalone !== true) {
   document.documentElement.style.colorScheme = "dark";
+  // Neutralises the fixed app shell (CSS: .in-browser overrides). Safari only
+  // minimises its toolbar on DOCUMENT scroll — an inner scroller is invisible
+  // to it, so the frozen root kept the glass permanently expanded. In the
+  // browser the document scrolls; the installed app keeps the fixed shell.
+  document.documentElement.classList.add("in-browser");
 }
 
 createRoot(document.getElementById('root')).render(
@@ -44,7 +49,11 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
 function restoreViewport() {
   const el = document.activeElement;
   if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return;
-  if (window.scrollY !== 0) window.scrollTo(0, 0);
+  // Snap-to-zero is only legal in standalone, where the root has no valid
+  // scroll position but 0. In the browser the document scrolls for real.
+  if (window.navigator.standalone === true && window.scrollY !== 0) {
+    window.scrollTo(0, 0);
+  }
   window.scrollBy(0, 1);
   window.scrollBy(0, -1);
 }

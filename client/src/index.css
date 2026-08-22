@@ -185,6 +185,24 @@
     -webkit-overflow-scrolling: touch;
   }
 
+  /* Browser mode (html.in-browser, set from navigator.standalone in main.jsx):
+     the app shell dissolves and the DOCUMENT scrolls. Safari 26 collapses its
+     toolbar to a small pill on document scroll — the "reduced chrome" every
+     normally-scrolling site gets — and an inner scroller never triggers it.
+     The installed app keeps the fixed shell and its verified full-bleed cork. */
+  .in-browser .app-viewport {
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .in-browser .content-scroll {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior-y: auto;
+  }
+
   /* The page shell.
      `100dvh` is the fix for Safari's toolbars: `100vh` resolves to the *largest*
      viewport — the one with the URL bar hidden — so a 100vh page is taller than
