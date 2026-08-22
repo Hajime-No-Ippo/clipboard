@@ -4,6 +4,16 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
+// Browser Safari only — never the installed app. navigator.standalone is the
+// iOS-native signal (true solely in home-screen apps), unlike the
+// display-mode:browser media query, which Safari does not match — the CSS
+// attempt at this silently no-opped, verified via the build stamp. Dark chrome
+// drops Safari 26's milky light-glass veil so the cork-toned tint can blend
+// the bars into the board.
+if (window.navigator.standalone !== true) {
+  document.documentElement.style.colorScheme = "dark";
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
