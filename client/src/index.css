@@ -185,6 +185,40 @@
     -webkit-overflow-scrolling: touch;
   }
 
+  /* Counter-frost strips, browser only. The bar glass blurs away anything
+     smaller than its radius — natural cork grain dies, big flat cards survive.
+     These strips put 3x-enlarged, contrast-boosted grain into exactly the
+     zones the glass covers, so what the frost outputs still reads as cork
+     texture instead of flat mush. Masked to fade before they reach content;
+     under the bars they are mostly hidden by the glass anyway. */
+  .in-browser::before,
+  .in-browser::after {
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+    background-image: url("/cork-bold.webp");
+    background-size: 512px 128px;
+    background-repeat: repeat-x;
+  }
+
+  .in-browser::before {
+    top: 0;
+    height: 120px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  }
+
+  .in-browser::after {
+    bottom: 0;
+    height: 120px;
+    background-position: 0 bottom;
+    -webkit-mask-image: linear-gradient(to top, #000 55%, transparent 100%);
+    mask-image: linear-gradient(to top, #000 55%, transparent 100%);
+  }
+
   /* Browser mode (html.in-browser, set from navigator.standalone in main.jsx):
      the app shell dissolves and the DOCUMENT scrolls. Safari 26 collapses its
      toolbar to a small pill on document scroll — the "reduced chrome" every
