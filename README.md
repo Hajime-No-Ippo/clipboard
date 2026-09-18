@@ -100,6 +100,10 @@ surface, not a private one.
 - Not implemented, and the right next step: an optional client-side passphrase, so the
   server stores ciphertext it cannot read.
 
+## Data Flow
+<img width="4053" height="7472" alt="diagram" src="https://github.com/user-attachments/assets/0105c47a-6517-44fe-b47d-0e2c008ec245" />
+
+
 ## API
 
 | Method | Path | Body | Result |
