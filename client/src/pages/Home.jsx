@@ -1,11 +1,17 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { GraffitiButton } from "@/components/GraffitiButton";
-import { CodeShield } from "@/components/CodeShield";
+import { Input } from "@/components/ui/input";
 import { createClipboard } from "@/lib/api";
 import { noteStyle } from "@/lib/board";
 import { extractCode } from "@/lib/code";
+
+// Same alphabet the server generates from (worker/index.js's newCode()) — no
+// I/L/O/0/1. Filters what you can TYPE; extractCode() below still accepts a
+// longer hand-picked code or a pasted board link, this alphabet only bounds
+// the six generated characters as you type them one at a time.
+const CODE_CHAR = /[ABCDEFGHJKMNPQRSTUVWXYZ23456789]/g;
 
 export default function Home() {
   const navigate = useNavigate();
@@ -26,9 +32,7 @@ export default function Home() {
   };
 
   const open = (event) => {
-    // CodeShield calls this directly (no event) when Enter is pressed inside
-    // a box, rather than always going through the form's own onSubmit.
-    event?.preventDefault();
+    event.preventDefault();
     // Accepts a bare code or a full board link pasted from another device.
     const slug = extractCode(code);
     if (!slug) {
@@ -40,6 +44,24 @@ export default function Home() {
       return;
     }
     navigate(`/c/${slug}`);
+  };
+
+  // Same gating as the six-box entry this replaced: uppercase as you type,
+  // and only the alphabet the server actually generates from — a stray "1"
+  // or "O" just doesn't land rather than being accepted and failing later.
+  const handleCodeChange = (event) => {
+    const raw = event.target.value.toUpperCase();
+    setCode(raw.match(CODE_CHAR)?.join("") ?? "");
+  };
+
+  // extractCode() handles a bare code or a full pasted board link — same
+  // parser `open()` above already uses, so a paste and a submit agree on
+  // what counts as a valid code.
+  const handleCodePaste = (event) => {
+    event.preventDefault();
+    const pasted = event.clipboardData.getData("text");
+    const parsed = extractCode(pasted);
+    setCode(parsed ?? pasted.toUpperCase().match(CODE_CHAR)?.join("") ?? "");
   };
 
   return (
@@ -92,14 +114,34 @@ export default function Home() {
             <span className="h-px flex-1 bg-[#e3d8c4]" />
           </div>
 
-          <form onSubmit={open} className="space-y-3">
-            <p className="text-center text-sm font-semibold text-[#2f2418]">
+          <form onSubmit={open} className="space-y-2">
+            <label
+              htmlFor="code"
+              className="text-sm font-semibold text-[#2f2418]"
+            >
               Enter a 6 character code
-            </p>
-            <CodeShield value={code} onChange={setCode} onSubmit={open} error={error} />
-            <GraffitiButton type="submit" variant="outline" className="w-full">
-              Open board
-            </GraffitiButton>
+            </label>
+            <div className="flex gap-2">
+              <Input
+                id="code"
+                value={code}
+                onChange={handleCodeChange}
+                onPaste={handleCodePaste}
+                placeholder="ABC123"
+                autoComplete="off"
+                spellCheck={false}
+                className="font-mono text-lg tracking-[0.3em]"
+              />
+              <GraffitiButton
+                type="submit"
+                variant="outline"
+                size="icon"
+                aria-label="Open board"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </GraffitiButton>
+            </div>
+            {error && <p className="text-sm text-red-700">{error}</p>}
           </form>
         </section>
       </div>
