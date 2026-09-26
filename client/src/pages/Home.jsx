@@ -5,12 +5,11 @@ import { GraffitiButton } from "@/components/GraffitiButton";
 import { Input } from "@/components/ui/input";
 import { createClipboard } from "@/lib/api";
 import { noteStyle } from "@/lib/board";
-import { extractCode } from "@/lib/code";
+import { CODE_LENGTH, extractCode } from "@/lib/code";
+import { cn } from "@/lib/utils";
 
 // Same alphabet the server generates from (worker/index.js's newCode()) — no
-// I/L/O/0/1. Filters what you can TYPE; extractCode() below still accepts a
-// longer hand-picked code or a pasted board link, this alphabet only bounds
-// the six generated characters as you type them one at a time.
+// I/L/O/0/1.
 const CODE_CHAR = /[ABCDEFGHJKMNPQRSTUVWXYZ23456789]/g;
 
 export default function Home() {
@@ -18,6 +17,12 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState(null);
+  // Bumped on every overflow attempt so the shake below replays each time
+  // (a repeated CSS class doesn't restart its own animation; remounting the
+  // element via a changed key does) — rejected drives the red flash, cleared
+  // once that same animation finishes.
+  const [shakeKey, setShakeKey] = useState(0);
+  const [rejected, setRejected] = useState(false);
 
   const create = async () => {
     setCreating(true);
@@ -46,12 +51,25 @@ export default function Home() {
     navigate(`/c/${slug}`);
   };
 
+  // Shared by typing and pasting: caps at CODE_LENGTH and flags the overflow
+  // so the input can shake/flash red, rather than silently swallowing the
+  // extra characters.
+  const applyCode = (next) => {
+    if (next.length > CODE_LENGTH) {
+      setCode(next.slice(0, CODE_LENGTH));
+      setShakeKey((key) => key + 1);
+      setRejected(true);
+    } else {
+      setCode(next);
+    }
+  };
+
   // Same gating as the six-box entry this replaced: uppercase as you type,
   // and only the alphabet the server actually generates from — a stray "1"
   // or "O" just doesn't land rather than being accepted and failing later.
   const handleCodeChange = (event) => {
     const raw = event.target.value.toUpperCase();
-    setCode(raw.match(CODE_CHAR)?.join("") ?? "");
+    applyCode(raw.match(CODE_CHAR)?.join("") ?? "");
   };
 
   // extractCode() handles a bare code or a full pasted board link — same
@@ -61,7 +79,7 @@ export default function Home() {
     event.preventDefault();
     const pasted = event.clipboardData.getData("text");
     const parsed = extractCode(pasted);
-    setCode(parsed ?? pasted.toUpperCase().match(CODE_CHAR)?.join("") ?? "");
+    applyCode(parsed ?? pasted.toUpperCase().match(CODE_CHAR)?.join("") ?? "");
   };
 
   return (
@@ -122,16 +140,30 @@ export default function Home() {
               Enter a 6 character code
             </label>
             <div className="flex gap-2">
-              <Input
-                id="code"
-                value={code}
-                onChange={handleCodeChange}
-                onPaste={handleCodePaste}
-                placeholder="ABC123"
-                autoComplete="off"
-                spellCheck={false}
-                className="font-mono text-lg tracking-[0.3em]"
-              />
+              {/* key={shakeKey}: repeating the same class doesn't restart a
+                  CSS animation, so a second overflow attempt in a row needs a
+                  fresh DOM node to replay it. Keyed on this wrapper rather
+                  than the Input itself, so the input never unmounts and loses
+                  focus mid-type. */}
+              <div
+                key={shakeKey}
+                className={cn("flex-1", rejected && "animate-shake")}
+                onAnimationEnd={() => setRejected(false)}
+              >
+                <Input
+                  id="code"
+                  value={code}
+                  onChange={handleCodeChange}
+                  onPaste={handleCodePaste}
+                  placeholder="ABC123"
+                  autoComplete="off"
+                  spellCheck={false}
+                  className={cn(
+                    "font-mono text-lg tracking-[0.3em]",
+                    rejected && "border-b-red-600 focus-visible:border-b-red-600",
+                  )}
+                />
+              </div>
               <GraffitiButton
                 type="submit"
                 variant="outline"
